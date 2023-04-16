@@ -10,7 +10,7 @@ class ProductManager {
         if (pCheck){
             return 'This product already exist'
         }
-        if (!product.title || !product.description || !product.price || !product.thumbnail || !product.code || !product.stock){
+        if (!product.title ?? !product.description ?? !product.price ?? !product.thumbnail ?? !product.code ?? !product.stock){
             return 'Filds missing'
         }
         this.id++;
