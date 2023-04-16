@@ -53,6 +53,8 @@ const product2 = {
 //Ejecutando
 const productManager = new ProductManager();
 
+console.log(productManager.getProduct())
+console.log(productManager.addProduct(product))
 console.log(productManager.addProduct(product))
 console.log(productManager.addProduct(product2))
 console.log(productManager.getProduct())
