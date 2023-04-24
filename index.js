@@ -1,7 +1,10 @@
+const fs = require("fs")
+
 // Creando la clase
 class ProductManager {
-    constructor(){
-        this.products = [];
+    constructor(path){
+        this.path = path
+        this.products = JSON.parse(fs.readFileSync(this.path, "utf-8")) ?? [];
         this.id = 0
     }
     //Método para agregar productos y checkear que no estén repetidos
@@ -16,10 +19,11 @@ class ProductManager {
         this.id++;
         product.id = this.id;
         this.products.push(product);
+        fs.writeFileSync(this.path, JSON.stringify(this.products))
         return 'Product added'
     }
     //Método para mostrar los productos agregados
-    getProduct(){
+    getProducts(){
         return this.products;
     }
     //Método para buscar un producto por ID
@@ -29,6 +33,29 @@ class ProductManager {
             return 'Product not found'
         }
         return catched
+    }
+
+    updateProduct(id, prodMod){
+        const prodToMod = this.products.find((prod) => prod.id === id);
+        if (!prodToMod) return 'Product not found'
+        if (prodMod.title) prodToMod.title = prodMod.title;
+        if (prodMod.description) prodToMod.description = prodMod.description;
+        if (prodMod.price) prodToMod.price = prodMod.price;
+        if (prodMod.thumbnail) prodToMod.thumbnail = prodMod.thumbnail;
+        if (prodMod.code) prodToMod.code = prodMod.code;
+        if (prodMod.stock) prodToMod.stock = prodMod.stock;
+        const updatedProduct = {id, ...prodToMod};
+        const i = this.products.indexOf(prodToMod);
+        this.products.splice(i, 1, updatedProduct)
+        fs.writeFileSync(this.path, JSON.stringify(this.products))
+        return "Product updated"
+    }
+    deleteProduct(id){
+        const i = this.products.findIndex((e) => e.id === id)
+        if (i == -1) return "The product doesn't existe"
+        this.products.splice(i, 1)
+        fs.writeFileSync(this.path, JSON.stringify(this.products))
+        return "Product deleted"
     }
 }
 
@@ -49,14 +76,22 @@ const product2 = {
     code: "aB001bA",
     stock: 47,
 }
+const modProduct = {
+    price: 320,
+    stock: 12,
+}
 
 //Ejecutando
-const productManager = new ProductManager();
+const productManager = new ProductManager("products.json");
 
-console.log(productManager.getProduct())
+console.log(productManager.getProducts())
 console.log(productManager.addProduct(product))
 console.log(productManager.addProduct(product))
 console.log(productManager.addProduct(product2))
-console.log(productManager.getProduct())
+console.log(productManager.getProducts())
 console.log(productManager.getProductById(1))
 console.log(productManager.getProductById(3))
+console.log(productManager.updateProduct(2, modProduct))
+console.log(productManager.getProducts())
+console.log(productManager.deleteProduct(1))
+console.log(productManager.getProducts())
