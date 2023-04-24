@@ -5,7 +5,7 @@ class ProductManager {
     constructor(path){
         this.path = path
         this.products = JSON.parse(fs.readFileSync(this.path, "utf-8")) ?? [];
-        this.id = 0
+        this.id = JSON.parse(fs.readFileSync("id.json", "utf-8")) ?? 0
     }
     //Método para agregar productos y checkear que no estén repetidos
     addProduct(product){
@@ -20,6 +20,7 @@ class ProductManager {
         product.id = this.id;
         this.products.push(product);
         fs.writeFileSync(this.path, JSON.stringify(this.products))
+        fs.writeFileSync("id.json", JSON.stringify(this.id))
         return 'Product added'
     }
     //Método para mostrar los productos agregados
@@ -93,5 +94,5 @@ console.log(productManager.getProductById(1))
 console.log(productManager.getProductById(3))
 console.log(productManager.updateProduct(2, modProduct))
 console.log(productManager.getProducts())
-console.log(productManager.deleteProduct(1))
+console.log(productManager.deleteProduct(JSON.parse(fs.readFileSync("id.json", "utf-8"))))
 console.log(productManager.getProducts())
