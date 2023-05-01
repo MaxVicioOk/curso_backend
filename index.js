@@ -4,59 +4,108 @@ const fs = require("fs")
 class ProductManager {
     constructor(path){
         this.path = path
-        this.products = JSON.parse(fs.readFileSync(this.path, "utf-8")) ?? [];
-        this.id = JSON.parse(fs.readFileSync("id.json", "utf-8")) ?? 0
+    }
+    //Leer el JSON de productos de forma asíncrona
+    async readData(){
+        try {
+            if (fs.existsSync(this.path)){
+                return JSON.parse(await fs.promises.readFile(this.path, "utf-8"))
+            }
+            await fs.promises.writeFile(this.path, JSON.stringify([]))
+            return []
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+    // Leer el JSON de ID de forma asíncrona
+    async readID(){
+        try {
+            if (fs.existsSync("id.json")){
+                return JSON.parse(await fs.promises.readFile("id.json", "utf-8"))
+            }
+            await fs.promises.writeFile("id.json", JSON.stringify(0))
+            return 0
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
     //Método para agregar productos y checkear que no estén repetidos
-    addProduct(product){
-        let pCheck = this.products.find(check => check.code === product.code);
-        if (pCheck){
-            return 'This product already exist'
+    async addProduct(product){
+        try {
+            let products = await this.readData();
+            let pCheck = products.find(check => check.code === product.code);
+            if (pCheck){
+                return 'This product already exist'
+            }
+            if (!product.title ?? !product.description ?? !product.price ?? !product.thumbnail ?? !product.code ?? !product.stock){
+                return 'Filds missing'
+            }
+            let id = await this.readID()
+            id++;
+            product.id = id;
+            products.push(product);
+            await fs.promises.writeFile(this.path, JSON.stringify(products))
+            await fs.promises.writeFile("id.json", JSON.stringify(id))
+            return 'Product added'
+        } catch (error) {
+            throw new Error(error.message)
         }
-        if (!product.title ?? !product.description ?? !product.price ?? !product.thumbnail ?? !product.code ?? !product.stock){
-            return 'Filds missing'
-        }
-        this.id++;
-        product.id = this.id;
-        this.products.push(product);
-        fs.writeFileSync(this.path, JSON.stringify(this.products))
-        fs.writeFileSync("id.json", JSON.stringify(this.id))
-        return 'Product added'
+        
     }
     //Método para mostrar los productos agregados
-    getProducts(){
-        return this.products;
+    async getProducts(){
+        try {
+            return await this.readData();
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
     //Método para buscar un producto por ID
-    getProductById(id){
-        let catched = this.products.find(check => check.id === id);
-        if (!catched){
-            return 'Product not found'
+    async getProductById(id){
+        try {
+            let products = await this.readData();
+            let catched = products.find(check => check.id === id);
+            if (!catched){
+                return 'Product not found'
+            }
+            return catched
+        } catch (error) {
+            throw new Error(error.message)
         }
-        return catched
     }
-
-    updateProduct(id, prodMod){
-        const prodToMod = this.products.find((prod) => prod.id === id);
-        if (!prodToMod) return 'Product not found'
-        if (prodMod.title) prodToMod.title = prodMod.title;
-        if (prodMod.description) prodToMod.description = prodMod.description;
-        if (prodMod.price) prodToMod.price = prodMod.price;
-        if (prodMod.thumbnail) prodToMod.thumbnail = prodMod.thumbnail;
-        if (prodMod.code) prodToMod.code = prodMod.code;
-        if (prodMod.stock) prodToMod.stock = prodMod.stock;
-        const updatedProduct = {id, ...prodToMod};
-        const i = this.products.indexOf(prodToMod);
-        this.products.splice(i, 1, updatedProduct)
-        fs.writeFileSync(this.path, JSON.stringify(this.products))
-        return "Product updated"
+    // Metodo para actualizar un producto
+    async updateProduct(id, prodMod){
+        try {
+            let products = await this.readData();
+            const prodToMod = products.find((prod) => prod.id === id);
+            if (!prodToMod) return 'Product not found'
+            if (prodMod.title) prodToMod.title = prodMod.title;
+            if (prodMod.description) prodToMod.description = prodMod.description;
+            if (prodMod.price) prodToMod.price = prodMod.price;
+            if (prodMod.thumbnail) prodToMod.thumbnail = prodMod.thumbnail;
+            if (prodMod.code) prodToMod.code = prodMod.code;
+            if (prodMod.stock) prodToMod.stock = prodMod.stock;
+            const updatedProduct = {id, ...prodToMod};
+            const i = products.indexOf(prodToMod);
+            products.splice(i, 1, updatedProduct)
+            await fs.promises.writeFile(this.path, JSON.stringify(products))
+            return "Product updated"
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
-    deleteProduct(id){
-        const i = this.products.findIndex((e) => e.id === id)
-        if (i == -1) return "The product doesn't existe"
-        this.products.splice(i, 1)
-        fs.writeFileSync(this.path, JSON.stringify(this.products))
-        return "Product deleted"
+    // Metodo para borrar un producto por ID
+    async deleteProduct(id){
+        try {
+            let products = await this.readData();
+            const i = products.findIndex((e) => e.id === id)
+            if (i == -1) return "The product doesn't existe"
+            products.splice(i, 1)
+            await fs.promises.writeFile(this.path, JSON.stringify(products))
+            return "Product deleted"
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 }
 
@@ -85,14 +134,17 @@ const modProduct = {
 //Ejecutando
 const productManager = new ProductManager("products.json");
 
-console.log(productManager.getProducts())
-console.log(productManager.addProduct(product))
-console.log(productManager.addProduct(product))
-console.log(productManager.addProduct(product2))
-console.log(productManager.getProducts())
-console.log(productManager.getProductById(1))
-console.log(productManager.getProductById(3))
-console.log(productManager.updateProduct(2, modProduct))
-console.log(productManager.getProducts())
-console.log(productManager.deleteProduct(JSON.parse(fs.readFileSync("id.json", "utf-8"))))
-console.log(productManager.getProducts())
+const asyncFn = async () => {
+console.log(await productManager.getProducts())
+console.log(await productManager.addProduct(product))
+console.log(await productManager.addProduct(product))
+console.log(await productManager.addProduct(product2))
+console.log(await productManager.getProducts())
+console.log(await productManager.getProductById(1))
+console.log(await productManager.getProductById(3))
+console.log(await productManager.updateProduct(2, modProduct))
+console.log(await productManager.getProducts())
+console.log(await productManager.deleteProduct(JSON.parse(fs.readFileSync("id.json", "utf-8"))))
+console.log(await productManager.getProducts())
+}
+asyncFn();
