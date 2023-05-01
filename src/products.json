@@ -1,0 +1,20 @@
+[
+    {
+        "title": "Las Galles",
+        "description": "Galletitas",
+        "price": 270,
+        "thumbnail": "https://www.clarin.com/img/2020/09/07/hGBJSRQ0d_340x340__1.jpg",
+        "code": "aA000aA",
+        "stock": 88,
+        "id": 1
+    },
+    {
+        "title": "Chocolatoso",
+        "description": "Chocolate",
+        "price": 470,
+        "thumbnail": "https://img.freepik.com/foto-gratis/arreglo-plano-deliciosas-tabletas-chocolate_23-2149349242.jpg?w=2000",
+        "code": "aB001bA",
+        "stock": 47,
+        "id": 2
+    }
+]

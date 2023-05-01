@@ -1,4 +1,4 @@
-const fs = require("fs")
+import fs from 'fs'
 
 // Creando la clase
 class ProductManager {
@@ -6,7 +6,7 @@ class ProductManager {
         this.path = path
     }
     //Leer el JSON de productos de forma asíncrona
-    async readData(){
+    async getProducts(){
         try {
             if (fs.existsSync(this.path)){
                 return JSON.parse(await fs.promises.readFile(this.path, "utf-8"))
@@ -32,7 +32,7 @@ class ProductManager {
     //Método para agregar productos y checkear que no estén repetidos
     async addProduct(product){
         try {
-            let products = await this.readData();
+            let products = await this.getProducts();
             let pCheck = products.find(check => check.code === product.code);
             if (pCheck){
                 return 'This product already exist'
@@ -52,21 +52,13 @@ class ProductManager {
         }
         
     }
-    //Método para mostrar los productos agregados
-    async getProducts(){
-        try {
-            return await this.readData();
-        } catch (error) {
-            throw new Error(error.message)
-        }
-    }
     //Método para buscar un producto por ID
     async getProductById(id){
         try {
-            let products = await this.readData();
-            let catched = products.find(check => check.id === id);
+            let products = await this.getProducts();
+            let catched = products.find((check) => check.id === id);
             if (!catched){
-                return 'Product not found'
+                return null
             }
             return catched
         } catch (error) {
@@ -76,7 +68,7 @@ class ProductManager {
     // Metodo para actualizar un producto
     async updateProduct(id, prodMod){
         try {
-            let products = await this.readData();
+            let products = await this.getProducts();
             const prodToMod = products.find((prod) => prod.id === id);
             if (!prodToMod) return 'Product not found'
             if (prodMod.title) prodToMod.title = prodMod.title;
@@ -97,7 +89,7 @@ class ProductManager {
     // Metodo para borrar un producto por ID
     async deleteProduct(id){
         try {
-            let products = await this.readData();
+            let products = await this.getProducts();
             const i = products.findIndex((e) => e.id === id)
             if (i == -1) return "The product doesn't existe"
             products.splice(i, 1)
@@ -147,4 +139,5 @@ console.log(await productManager.getProducts())
 console.log(await productManager.deleteProduct(JSON.parse(fs.readFileSync("id.json", "utf-8"))))
 console.log(await productManager.getProducts())
 }
-asyncFn();
+    
+export default ProductManager;
