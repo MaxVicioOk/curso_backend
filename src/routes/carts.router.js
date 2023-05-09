@@ -61,6 +61,19 @@ cartRouter.get('/:cid/products', async (req, res) => {
         return error.message
     }
 })
-cartRouter.post('/:cid/products/:pid', async (req, res) =>{
-    
+cartRouter.put('/:cid/products/:pid', async (req, res) =>{
+    const cid = parseInt(req.params.cid);
+    const pid = parseInt(req.params.pid);
+    const modCart = await cartManager.addProductToCart(cid, pid);
+    if (!modCart)
+        return res.status(500).json({
+            status: "Error",
+            message: "Not added",
+            payload: {},
+        })
+    return res.status(200).json({
+        status: 'Success',
+        message: "Added to cart",
+        payload: modCart
+    })
 })
