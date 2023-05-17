@@ -1,0 +1,14 @@
+<h1>Lista de Productos</h1>
+{{#each products}}
+    <ul>
+        {{#if this.picture}}
+            <li><img src={{this.picture}}></li>
+        {{else}}
+            <li><img src={{this.thumbnail}}></li>
+        {{/if}}
+        <li>Nombre: {{this.title}}</li>
+        <li>Descripción: {{this.description}}</li>
+        <li>Precio: {{this.price}}</li>
+        <li>Código: {{this.code}}</li>
+    </ul>
+{{/each}}

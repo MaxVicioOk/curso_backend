@@ -1,0 +1,34 @@
+<h2>Agrega un producto</h2>
+<form action="/api/products" method="post" id="form">
+    <label for="title">Nombre</label>
+    <input type="text" name="title" placeholder="Titulo" id="form-title" required><br>
+    <label for="description">Descripción</label>
+    <input type="text" name="description" placeholder="descripcion" id="form-desc" required><br>
+    <label for="price">Precio</label>
+    <input type="number" name="price" placeholder="123" id="form-price" required><br>
+    <label for="code">Código</label>
+    <input type="text" name="code" placeholder="xx000xx" id="form-code" required><br>
+    <label for="stock">Stock</label>
+    <input type="number" name="stock" placeholder="123" id="form-stock" required><br>
+    <label for="thumbnail">Imagen</label>
+    <input type="text" name="thumbnail" placeholder="url img" id="form-imgurl" required><br>
+    <button type="submit" id="sendBtn">Enviar</button>
+</form>
+
+<h1>Lista de Productos</h1>
+<div id="card-list">
+{{#each products}}
+    <ul>
+        {{#if this.picture}}
+            <li><img src={{this.picture}}></li>
+        {{else}}
+            <li><img src={{this.thumbnail}}></li>
+        {{/if}}
+        <li>Nombre: {{this.title}}</li>
+        <li>Descripción: {{this.description}}</li>
+        <li>Precio: {{this.price}}</li>
+        <li>Código: {{this.code}}</li>
+        <li><button onclick="deleteProduct({{this.id}})">Borrar</button></li>
+    </ul>
+{{/each}}
+</div>

@@ -1,5 +1,7 @@
 import express from 'express';
 import ProductManager from '../productManager.js';
+import { uploader } from '../utils.js';
+import { localHost } from '../app.js';
 
 export const productRouter = express.Router();
 const productManager = new ProductManager('./src/products.json');
@@ -43,19 +45,20 @@ productRouter.get("/:pid", async (req, res) => {
             message: 'error'})
     }
 });
-productRouter.post("/", async (req, res) => {
+productRouter.post("/", uploader.single('file'), async (req, res) => {
     const newProduct = req.body;
+    newProduct.thumbnail = localHost + req.file.filename
     const messageReturned = await productManager.addProduct(newProduct)
     if (messageReturned !== 'Product added')
         return res.status(400).json({
             status: 'Error',
             message: messageReturned
         })
-    const id = await productManager.readID()
+    newProduct.id = await productManager.readID()
     return res.status(201).json({
         status: 'Success',
         message: messageReturned,
-        payload: {id, ...newProduct}
+        payload: newProduct
     })
 })
 productRouter.put("/:pid", async (req, res) => {
